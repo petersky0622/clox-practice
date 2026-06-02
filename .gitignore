@@ -1,0 +1,8 @@
+*.o
+*.out
+*.exe
+clox
+build
+.vscode/
+.DS_Store
+
