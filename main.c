@@ -48,7 +48,7 @@ static char* readFile(const char* path) {
     return buffer;
 }
 
-static void runfFile(char* path) {
+static void runFile(char* path) {
     char* source = readFile(source);
     InterpretResult result = interpret(source);
     free(source);
