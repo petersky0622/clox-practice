@@ -6,96 +6,131 @@
 
 VM vm;
 
-static void resetStack() {
+static void resetStack()
+{
     vm.stackTop = vm.stack;
 }
 
-void initVM() {
+void initVM()
+{
     resetStack();
 }
 
-void freeVM() {
-
+void freeVM()
+{
 }
 
-void push(Value value) {
+void push(Value value)
+{
     *vm.stackTop++ = value;
 }
 
-Value pop() {
+Value pop()
+{
     return *--vm.stackTop;
 }
 
-static Value readConstantLong() {
+static Value readConstantLong()
+{
     uint32_t constant = *vm.ip++;
     constant |= (uint32_t)(*vm.ip++) << 8;
     constant |= (uint32_t)(*vm.ip++) << 16;
     return vm.chunk->constants.values[constant];
 }
 
-static InterpretResult run() {
+static InterpretResult run()
+{
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
 #define READ_CONSTANT_LONG() readConstantLong()
 
-#define BINARY_OP(op) \
-    do { \
-      double b = pop(); \
-      double a = pop(); \
-      push(a op b); \
+#define BINARY_OP(op)     \
+    do                    \
+    {                     \
+        double b = pop(); \
+        double a = pop(); \
+        push(a op b);     \
     } while (false)
 
     uint8_t instruction;
-    for (;;) {
+    for (;;)
+    {
 
 #ifdef DEBUG_TRACE_EXECUTION
-    
-    printf("          ");
-    for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
-        printf("[ ");
-        printValue(*slot);
-        printf(" ]");
-    }
-    printf("\n");
-    disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
+
+        printf("          ");
+        for (Value *slot = vm.stack; slot < vm.stackTop; slot++)
+        {
+            printf("[ ");
+            printValue(*slot);
+            printf(" ]");
+        }
+        printf("\n");
+        disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
 
 #endif
 
-        switch (instruction = READ_BYTE()){
-            case OP_CONSTANT:{
-                Value constant = READ_CONSTANT();
-                push(constant);
-                break;
-            }
-            case OP_CONSTANT_LONG:{
-                Value constant = READ_CONSTANT_LONG();
-                push(constant);
-                break;
-            }
-            case OP_ADD:       BINARY_OP(+); break;
-            case OP_SUBTRACT:  BINARY_OP(-); break;
-            case OP_MULTIPLY:  BINARY_OP(*); break;
-            case OP_DIVIDE:    BINARY_OP(/); break;
-            case OP_NEGATE:{
-                push(-pop());
-                break;
-            }
-            case OP_RETURN:{
-                printValue(pop());
-                printf("\n");
-                return INTERPRET_OK;
-            
-            }
+        switch (instruction = READ_BYTE())
+        {
+        case OP_CONSTANT:
+        {
+            Value constant = READ_CONSTANT();
+            push(constant);
+            break;
+        }
+        case OP_CONSTANT_LONG:
+        {
+            Value constant = READ_CONSTANT_LONG();
+            push(constant);
+            break;
+        }
+        case OP_ADD:
+            BINARY_OP(+);
+            break;
+        case OP_SUBTRACT:
+            BINARY_OP(-);
+            break;
+        case OP_MULTIPLY:
+            BINARY_OP(*);
+            break;
+        case OP_DIVIDE:
+            BINARY_OP(/);
+            break;
+        case OP_NEGATE:
+        {
+            push(-pop());
+            break;
+        }
+        case OP_RETURN:
+        {
+            printValue(pop());
+            printf("\n");
+            return INTERPRET_OK;
+        }
         }
     }
-#undef  READ_BYTE
-#undef  READ_CONSTANT
-#undef  READ_CONSTANT_LONG
-#undef  BINARY_OP
+#undef READ_BYTE
+#undef READ_CONSTANT
+#undef READ_CONSTANT_LONG
+#undef BINARY_OP
 }
 
-InterpretResult interpret(const char* source) {
-    compile(source);
+InterpretResult interpret(const char *source)
+{
+    Chunk chunk;
+    initChunk(&chunk);
 
-    return INTERPRET_OK;
+    if (!compile(source, &chunk))
+    {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpretResult result = run();
+
+    freeChunk(&chunk);
+    return result;
 }
