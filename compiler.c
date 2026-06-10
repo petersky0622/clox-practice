@@ -66,9 +66,10 @@ static void errorAt(Token *token, const char *message)
     }
     else
     {
-        fprintf(stderr, "at '%.*s'", token->length, token->start);
+        fprintf(stderr, " at '%.*s'", token->length, token->start);
     }
 
+    fprintf(stderr, ": %s\n", message);
     parser.hadError = true;
 }
 
@@ -271,7 +272,7 @@ static void parsePrecedence(Precedence precedence)
 
     prefixRule();
 
-    while (prefixRule < getRule(parser.current.type)->precedence) {
+    while (precedence <= getRule(parser.current.type)->precedence) {
         advance();
         ParseFn infixRule = getRule(parser.previous.type)->infix;
         infixRule();

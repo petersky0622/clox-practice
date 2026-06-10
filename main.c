@@ -48,8 +48,8 @@ static char* readFile(const char* path) {
     return buffer;
 }
 
-static void runFile(char* path) {
-    char* source = readFile(source);
+static void runFile(const char* path) {
+    char* source = readFile(path);
     InterpretResult result = interpret(source);
     free(source);
 

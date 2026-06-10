@@ -106,6 +106,7 @@ static void skipWhitespace()
         case '\n':
             scanner.line++;
             advance();
+            break;
         case '/':
             if (peekNext() == '/')
             {
@@ -119,7 +120,7 @@ static void skipWhitespace()
             }
             break;
         default:
-            break;
+            return;
         }
     }
 }
@@ -130,13 +131,6 @@ static TokenType checkKeyword(int start, int length, const char *rest, TokenType
         return type;
     }
     return TOKEN_IDENTIFIER;
-}
-
-static Token identifier()
-{
-    while (isAlpha(peek()) || isDigit(peek()))
-        advance();
-    return makeToken(identifierType());
 }
 
 static TokenType identifierType()
@@ -195,6 +189,15 @@ static TokenType identifierType()
     return TOKEN_IDENTIFIER;
 }
 
+static Token identifier()
+{
+    while (isAlpha(peek()) || isDigit(peek()))
+        advance();
+    return makeToken(identifierType());
+}
+
+
+
 static Token number()
 {
 
@@ -247,7 +250,7 @@ Token scanToken()
     if (isAlpha(c))
         return identifier();
 
-    if (isDitgit(c))
+    if (isDigit(c))
         return number();
     switch (c)
     {
