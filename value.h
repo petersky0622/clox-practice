@@ -24,20 +24,20 @@ typedef struct
 #define IS_NIL(value)     ((value).type == VAL_NIL)
 #define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
 
-#define AS_BOOL(value)     ((value).as.boolean)                       //解包
-#define AS_NUMBER(value)   ((value).as.number)
+#define AS_BOOL(value)     ((value).as.boolean)                               //unpacking
+#define AS_NUMBER(value)   ((value).as.number)                               //unpacking                
 
 
-#define BOOL_VAL(value)    ((Value){VAL_BOOL, {.boolean = value}})    //打包
-#define NIL_VAL            ((Value){VAL_NIL, {.number = 0}})
-#define NUMBER_VAL(value)  ((Value){VAL_NUMBER, {.number = value}})
+#define BOOL_VAL(value)    ((Value){VAL_BOOL, {.boolean = value}})    //packing
+#define NIL_VAL            ((Value){VAL_NIL, {.number = 0}})             //packing
+#define NUMBER_VAL(value)  ((Value){VAL_NUMBER, {.number = value}})       //packing
 
 
-typedef struct {
-    int capacity;
-    int count;
+typedef struct {                                          //value array     
+    int capacity;                                         //array capacity
+    int count;                                            //array count
     Value* values;
-} ValueArray;
+} ValueArray;                                          //value array                
 
 bool valuesEqual(Value a, Value b);
 void initValueArray(ValueArray* array);
