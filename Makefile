@@ -3,7 +3,7 @@ CFLAGS ?= -std=c99 -Wall -Wextra -pedantic -I.
 LDFLAGS ?=
 
 TARGET := clox
-SRCS := chunk.c compiler.c debug.c main.c memory.c scanner.c value.c vm.c
+SRCS := chunk.c compiler.c debug.c main.c memory.c scanner.c value.c vm.c object.c
 OBJS := $(SRCS:.c=.o)
 
 .PHONY: all clean test
