@@ -8,7 +8,7 @@
 
 #define TABLE_MAX_LOAD 0.75
 
-void iniTable(Table *table)
+void initTable(Table *table)
 {
 
     table->capacity = 0;
@@ -19,7 +19,7 @@ void iniTable(Table *table)
 void freeTable(Table *table)
 {
     FREE_ARRAY(Entry, table->entries, table->capacity);
-    iniTable(table);
+    initTable(table);
 }
 
 static Entry *findEntry(Entry *entries, int capacity, ObjString *key)
@@ -31,8 +31,8 @@ static Entry *findEntry(Entry *entries, int capacity, ObjString *key)
     for (;;)
     {
         Entry *entry = &entries[index];
-        if (entries->key == NULL) {
-            if (IS_NIL(entries->value)) {
+        if (entry->key == NULL) {
+            if (IS_NIL(entry->value)) {
                 return tombstone != NULL ? tombstone : entry;
             }
             else{
@@ -57,13 +57,13 @@ bool tableGet(Table* table, ObjString* key, Value* value) {
     return true;
 }
 
-static adjustCapacity(Table *table, int capacity)
+static void adjustCapacity(Table *table, int capacity)
 {
     Entry *entries = ALLOCATE(Entry, capacity);
     for (int i = 0; i < capacity; i++)
     {
-        entries->key = NULL;
-        entries->value = NIL_VAL;
+        entries[i].key = NULL;
+        entries[i].value = NIL_VAL;
     }
     
     table->count = 0;
@@ -76,6 +76,7 @@ static adjustCapacity(Table *table, int capacity)
         Entry *dest = findEntry(entries, capacity, entry->key);
         dest->key = entry->key;
         dest->value = entry->value;
+        table->count++;
     }
 
     FREE_ARRAY(Entry, table->entries, table->capacity);
@@ -111,6 +112,7 @@ bool tableDelete(Table* table, ObjString* key){
 
     entry->key = NULL;
     entry->value = BOOL_VAL(true);
+    return true;
 }
 
 
